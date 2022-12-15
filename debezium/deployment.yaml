@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: debezium
+  labels:
+    app: debezium
+spec:
+  serviceName: debezium
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium
+  template:
+    metadata:
+      labels:
+        app: debezium
+    spec:
+      containers:
+        - name: debezium
+          image: debezium/connect:1.9.4.Final
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: kafka:9092
+            - name: GROUP_ID
+              value: "1"
+            - name: CONFIG_STORAGE_TOPIC
+              value: debezium_configs
+            - name: OFFSET_STORAGE_TOPIC
+              value: debezium_offsets
+            - name: STATUS_STORAGE_TOPIC
+              value: debezium_statuses
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debezium
+  labels:
+    app: debezium
+spec:
+  clusterIP: None
+  ports:
+    - name: '8083'
+      port: 8083
+      protocol: TCP
+      targetPort: 8083
+  selector:
+    app: debezium

@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: bitnami/kafka:3.2.0
+          env:
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: zookeeper:2181
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+spec:
+  clusterIP: None
+  ports:
+    - name: '9092'
+      port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    app: kafka
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-ui
+  labels:
+    app: kafka-ui
+spec:
+  serviceName: kafka-ui
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-ui
+  template:
+    metadata:
+      labels:
+        app: kafka-ui
+    spec:
+      containers:
+        - name: kafka-ui
+          image: provectuslabs/kafka-ui:latest
+          env:
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: local
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: kafka:9092
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-ui
+  labels:
+    app: kafka-ui
+spec:
+  clusterIP: None
+  ports:
+    - name: '8080'
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: kafka-ui
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  serviceName: zookeeper
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: bitnami/zookeeper:3.8.0
+          env:
+            - name: ZOO_CLIENT_USER
+              value: user
+            - name: ZOO_CLIENT_PASSWORD
+              value: verysecret
+            - name: ZOO_ENABLE_AUTH
+              value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  clusterIP: None
+  ports:
+    - name: '2181'
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+  selector:
+    app: zookeeper

@@ -1,0 +1,26 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: transactional-outbox
+build:
+  artifacts:
+  - image: order
+    context: order
+    buildpacks:
+      builder: gcr.io/buildpacks/builder:v1
+      env:
+      - "BP_JVM_VERSION=17"
+  - image: payment
+    context: payment
+    buildpacks:
+      builder: gcr.io/buildpacks/builder:v1
+      env:
+      - "BP_JVM_VERSION=17"
+deploy:
+  kubectl:
+    manifests:
+    - mysql/deployment.yaml
+    - kafka/deployment.yaml
+    - debezium/deployment.yaml
+    - order/deployment.yaml
+    - payment/deployment.yaml

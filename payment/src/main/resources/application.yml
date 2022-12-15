@@ -1,0 +1,14 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
